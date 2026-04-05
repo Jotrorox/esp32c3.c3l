@@ -8,7 +8,7 @@
   "sources": [ "src/**" ],
   "build-dir": "build",
   "output": "build",
-  "opt": "O1",
+  "opt": "O0",
   "cpu": "rvimac",
   "targets": {
     "blink": {

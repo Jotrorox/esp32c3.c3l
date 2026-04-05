@@ -25,5 +25,12 @@ SECTIONS {
         __bss_end = .;
     } > dram
 
+    /DISCARD/ : {
+        *(.eh_frame*)
+        *(.eh_frame_hdr*)
+        *(.comment)
+        *(.note*)
+    }
+
     __stack_top = ORIGIN(dram) + LENGTH(dram);
 }
