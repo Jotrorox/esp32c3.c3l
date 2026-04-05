@@ -1,0 +1,11 @@
+{
+  "provides" : "espc3",
+  "linklib-dir" : "linked-libs",
+  "targets" : {
+    "elf-riscv32" : {
+      "link-args" : [],
+      "dependencies" : [],
+      "linked-libraries" : []
+    }
+  }
+}
