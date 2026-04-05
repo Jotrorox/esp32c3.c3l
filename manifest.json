@@ -1,5 +1,5 @@
 {
-  "provides" : "espc3",
+  "provides" : "esp32c3",
   "linklib-dir" : "linked-libs",
   "targets" : {
     "elf-riscv32" : {

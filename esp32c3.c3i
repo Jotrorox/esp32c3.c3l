@@ -1,4 +1,4 @@
-module espc3;
+module esp32c3;
 
 const uint PIN0 = 0;
 const uint PIN1 = 1;

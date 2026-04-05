@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "warnings": [ "no-unused" ],
   "dependency-search-paths": [ "../../.." ],
-  "dependencies": [ "espc3" ],
+  "dependencies": [ "esp32c3" ],
   "sources": [ "src/**" ],
   "build-dir": "build",
   "output": "build",

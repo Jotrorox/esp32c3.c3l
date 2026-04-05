@@ -1,6 +1,6 @@
 module blink;
 
-import espc3;
+import esp32c3;
 
 const uint GPIO_BASE = 0x6000_4000;
 const uint GPIO_ENABLE_W1TS = GPIO_BASE + 0x024;

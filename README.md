@@ -1,4 +1,4 @@
-`espc3` is a minimal ESP32-C3 C3 library.
+`esp32c3` is a minimal ESP32-C3 C3 library.
 
 It currently exposes:
 
