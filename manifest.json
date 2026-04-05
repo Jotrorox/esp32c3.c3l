@@ -3,7 +3,7 @@
   "linklib-dir" : "linked-libs",
   "targets" : {
     "elf-riscv32" : {
-      "link-args" : [],
+      "link-args" : [ "-T", "esp32c3.ld", "--gc-sections" ],
       "dependencies" : [],
       "linked-libraries" : []
     }

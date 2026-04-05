@@ -14,8 +14,8 @@ Available pin constants:
 ## Blink example
 
 You also need: 
-2. `riscv32-elf-ld`
-3. `esptool`
+1. `c3c`
+2. `esptool`
 
 Build:
 

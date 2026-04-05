@@ -22,13 +22,13 @@ fn void delay(uint cycles)
 
 fn void main() @export("main") @noreturn
 {
-    espc3::pin_out(espc3::PIN8);
+    esp32c3::pin_out(esp32c3::PIN8);
 
     while (true)
     {
-        espc3::pin_on(espc3::PIN8);
+        esp32c3::pin_on(esp32c3::PIN8);
         delay(400_000);
-        espc3::pin_off(espc3::PIN8);
+        esp32c3::pin_off(esp32c3::PIN8);
         delay(400_000);
     }
 }
