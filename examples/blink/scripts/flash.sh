@@ -11,4 +11,5 @@ port="$1"
 baud="${2:-460800}"
 
 esptool --chip esp32c3 --port "$port" --baud "$baud" \
-    --no-stub load-ram "$project_dir/build/blink.bin"
+    --before default-reset --after hard-reset \
+    write-flash 0x0 "$project_dir/build/blink.bin"

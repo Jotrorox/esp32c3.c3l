@@ -2,6 +2,7 @@
 
 It currently exposes:
 
+- `init()`
 - `pin_out(pin)`
 - `pin_on(pin)`
 - `pin_off(pin)`
@@ -16,6 +17,7 @@ Available pin constants:
 - `PIN18` through `PIN21`
 
 The UART helpers write through the ESP32-C3 ROM console transmit path, so output follows the active board console without duplicating characters.
+Call `init()` at the top of `main()` when booting from flash so the library can initialize the ROM boot watchdog handling before entering the main loop.
 
 You also need: 
 1. `c3c`
@@ -30,8 +32,8 @@ cd examples/blink # Or cd examples/uart-console
 ./scripts/build.sh
 ```
 
-Load to RAM:
+Flash to storage and boot from flash:
 
 ```sh
-./scripts/load-ram.sh /dev/ttyACM0
+./scripts/flash.sh /dev/ttyACM0
 ```

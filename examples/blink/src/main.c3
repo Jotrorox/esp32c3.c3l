@@ -4,6 +4,7 @@ import esp32c3;
 
 fn void main() @export("main") @noreturn
 {
+    esp32c3::init();
     esp32c3::pin_out(esp32c3::PIN8);
 
     while (true)

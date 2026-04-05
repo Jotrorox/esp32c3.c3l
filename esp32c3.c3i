@@ -16,6 +16,9 @@ const uint PIN19 = 19;
 const uint PIN20 = 20;
 const uint PIN21 = 21;
 
+macro void init()
+	=> boot_init();
+
 macro void pin_out(uint pin)
 	=> pin_out_impl(pin);
 
