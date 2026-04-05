@@ -25,6 +25,12 @@ macro void pin_on(uint pin)
 macro void pin_off(uint pin)
 	=> pin_off_impl(pin);
 
+macro void uart_print(char* text)
+	=> uart_write_impl(text);
+
+macro void uart_printn(char* text)
+	=> uart_write_line_impl(text);
+
 macro void delay_us(uint us)
 	=> delay_us_impl(us);
 

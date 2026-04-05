@@ -34,8 +34,13 @@ const uint SYSTIMER_TIMER_UNIT0_VALUE_VALID_BIT = 29;
 const uint SYSTIMER_UNIT0_HI_MASK = 0x000F_FFFF;
 const uint SYSTEM_SYSTIMER_CLK_EN_BIT = 30;
 const uint SYSTEM_SYSTIMER_RST_BIT = 30;
+const usz ROM_UART_TX_ONE_CHAR_ADDR = 0x4000_0068;
 
 bool delay_timer_ready @local = false;
+
+alias RomTxOneChar = fn int(char);
+
+const RomTxOneChar ROM_UART_TX_ONE_CHAR = (RomTxOneChar)ROM_UART_TX_ONE_CHAR_ADDR;
 
 macro void reg_write(uint addr, uint value)
 {
@@ -95,6 +100,27 @@ fn void pin_on_impl(uint pin) @private
 fn void pin_off_impl(uint pin) @private
 {
 	reg_write(GPIO_OUT_W1TC, pin_mask(pin));
+}
+
+fn void uart_write_byte_impl(char byte) @private
+{
+	ROM_UART_TX_ONE_CHAR(byte);
+}
+
+fn void uart_write_impl(char* text) @private
+{
+	while (*text)
+	{
+		uart_write_byte_impl(*text);
+		text++;
+	}
+}
+
+fn void uart_write_line_impl(char* text) @private
+{
+	uart_write_impl(text);
+	uart_write_byte_impl('\r');
+	uart_write_byte_impl('\n');
 }
 
 fn ulong systimer_unit0_read_count() @private
