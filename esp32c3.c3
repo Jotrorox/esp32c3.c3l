@@ -2,6 +2,8 @@ module esp32c3 @private;
 
 const uint GPIO_BASE = 0x6000_4000;
 const uint IO_MUX_BASE = 0x6000_9000;
+const uint SYSTIMER_BASE = 0x6002_3000;
+const uint SYSTEM_BASE = 0x600C_0000;
 
 const uint GPIO_OUT_W1TS = GPIO_BASE + 0x008;
 const uint GPIO_OUT_W1TC = GPIO_BASE + 0x00C;
@@ -13,12 +15,36 @@ const uint GPIO_FUNC_OUT_SEL_STRIDE = 4;
 const uint IO_MUX_GPIO_BASE = IO_MUX_BASE + 0x004;
 const uint IO_MUX_GPIO_STRIDE = 4;
 
+const uint SYSTIMER_CONF = SYSTIMER_BASE + 0x0000;
+const uint SYSTIMER_UNIT0_OP = SYSTIMER_BASE + 0x0004;
+const uint SYSTIMER_UNIT0_VALUE_HI = SYSTIMER_BASE + 0x0040;
+const uint SYSTIMER_UNIT0_VALUE_LO = SYSTIMER_BASE + 0x0044;
+
+const uint SYSTEM_PERIP_CLK_EN0 = SYSTEM_BASE + 0x0010;
+const uint SYSTEM_PERIP_RST_EN0 = SYSTEM_BASE + 0x0018;
+
 const uint IO_MUX_OUTPUT_VALUE = (2u << 10) | (1u << 12);
 const uint GPIO_FUNC_OUTPUT_VALUE = 0x80u | (1u << 9);
+
+const uint SYSTIMER_CLK_EN_BIT = 31;
+const uint SYSTIMER_TIMER_UNIT0_WORK_EN_BIT = 30;
+const uint SYSTIMER_TIMER_UNIT0_CORE0_STALL_EN_BIT = 28;
+const uint SYSTIMER_TIMER_UNIT0_UPDATE_BIT = 30;
+const uint SYSTIMER_TIMER_UNIT0_VALUE_VALID_BIT = 29;
+const uint SYSTIMER_UNIT0_HI_MASK = 0x000F_FFFF;
+const uint SYSTEM_SYSTIMER_CLK_EN_BIT = 30;
+const uint SYSTEM_SYSTIMER_RST_BIT = 30;
+
+bool delay_timer_ready @local = false;
 
 macro void reg_write(uint addr, uint value)
 {
 	*((uint*)addr) = value;
+}
+
+macro uint reg_read(uint addr)
+{
+	return *((uint*)addr);
 }
 
 <*
@@ -69,4 +95,68 @@ fn void pin_on_impl(uint pin) @private
 fn void pin_off_impl(uint pin) @private
 {
 	reg_write(GPIO_OUT_W1TC, pin_mask(pin));
+}
+
+fn ulong systimer_unit0_read_count() @private
+{
+	reg_write(SYSTIMER_UNIT0_OP, 1u << SYSTIMER_TIMER_UNIT0_VALUE_VALID_BIT);
+	reg_write(SYSTIMER_UNIT0_OP, 1u << SYSTIMER_TIMER_UNIT0_UPDATE_BIT);
+	while ((reg_read(SYSTIMER_UNIT0_OP) & (1u << SYSTIMER_TIMER_UNIT0_VALUE_VALID_BIT)) == 0)
+	{
+	}
+
+	uint lo = reg_read(SYSTIMER_UNIT0_VALUE_LO);
+	uint hi = reg_read(SYSTIMER_UNIT0_VALUE_HI) & SYSTIMER_UNIT0_HI_MASK;
+	return ((ulong)hi << 32) | lo;
+}
+
+fn void delay_timer_init() @private
+{
+	reg_write(
+		SYSTEM_PERIP_CLK_EN0,
+		reg_read(SYSTEM_PERIP_CLK_EN0) | (1u << SYSTEM_SYSTIMER_CLK_EN_BIT)
+	);
+	reg_write(
+		SYSTEM_PERIP_RST_EN0,
+		reg_read(SYSTEM_PERIP_RST_EN0) & ~(1u << SYSTEM_SYSTIMER_RST_BIT)
+	);
+
+	uint cfg = reg_read(SYSTIMER_CONF);
+	cfg |= 1u << SYSTIMER_CLK_EN_BIT;
+	cfg |= 1u << SYSTIMER_TIMER_UNIT0_WORK_EN_BIT;
+	cfg &= ~(1u << SYSTIMER_TIMER_UNIT0_CORE0_STALL_EN_BIT);
+	reg_write(SYSTIMER_CONF, cfg);
+
+	delay_timer_ready = true;
+}
+
+fn void delay_timer_ensure_init() @private
+{
+	if (!delay_timer_ready)
+	{
+		delay_timer_init();
+	}
+}
+
+fn void delay_us_impl(uint us) @private
+{
+	delay_timer_ensure_init();
+
+	ulong start = systimer_unit0_read_count();
+	ulong target = (ulong)us << 4;
+	while (systimer_unit0_read_count() - start < target)
+	{
+	}
+}
+
+fn void delay_ms_impl(uint ms) @private
+{
+	delay_timer_ensure_init();
+
+	ulong start = systimer_unit0_read_count();
+	ulong ms64 = (ulong)ms;
+	ulong target = (ms64 << 14) - (ms64 << 8) - (ms64 << 7);
+	while (systimer_unit0_read_count() - start < target)
+	{
+	}
 }

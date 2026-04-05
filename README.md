@@ -5,6 +5,8 @@ It currently exposes:
 - `pin_out(pin)`
 - `pin_on(pin)`
 - `pin_off(pin)`
+- `delay_us(us)`
+- `delay_ms(ms)`
 
 Available pin constants:
 
