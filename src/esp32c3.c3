@@ -81,13 +81,10 @@ fn void feed_mwdt(uint timer_group_base) @private
 	reg_write(timer_group_base + TIMG_WDTFEED_OFFSET, 1);
 }
 
-fn void boot_init() @private
-{
-	if (boot_ready)
-	{
-		return;
-	}
+extern fn void start();
 
+fn void __init() @naked @noreturn @export("__init") @section(".init")
+{
 	disable_mwdt(TIMG0_BASE);
 	disable_mwdt(TIMG1_BASE);
 	reg_write(RTC_CNTL_WDTWPROTECT, TIMG_WDT_WKEY_VALUE);
@@ -100,7 +97,8 @@ fn void boot_init() @private
 	);
 	reg_write(RTC_CNTL_SWD_WPROTECT, 0);
 	feed_mwdt(TIMG0_BASE);
-	boot_ready = true;
+
+	start();
 }
 
 <*
@@ -132,7 +130,6 @@ fn uint pin_out_sel_reg(uint pin) @private
 *>
 fn void pin_out_impl(uint pin) @private
 {
-	boot_init();
 	feed_mwdt(TIMG0_BASE);
 	reg_write(pin_io_mux_reg(pin), IO_MUX_OUTPUT_VALUE);
 	reg_write(pin_out_sel_reg(pin), GPIO_FUNC_OUTPUT_VALUE);
@@ -159,7 +156,6 @@ fn void pin_off_impl(uint pin) @private
 
 fn void uart_write_byte_impl(char byte) @private
 {
-	boot_init();
 	feed_mwdt(TIMG0_BASE);
 	ROM_UART_TX_ONE_CHAR(byte);
 }
@@ -195,8 +191,6 @@ fn ulong systimer_unit0_read_count() @private
 
 fn void delay_timer_init() @private
 {
-	boot_init();
-
 	reg_write(
 		SYSTEM_PERIP_CLK_EN0,
 		reg_read(SYSTEM_PERIP_CLK_EN0) | (1u << SYSTEM_SYSTIMER_CLK_EN_BIT)

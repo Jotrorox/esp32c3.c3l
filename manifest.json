@@ -1,6 +1,7 @@
 {
   "provides" : "esp32c3",
   "linklib-dir" : "linked-libs",
+  "sources": [ "src/**" ],
   "targets" : {
     "elf-riscv32" : {
       "link-args" : [ "-T", "esp32c3.ld", "--gc-sections" ],
