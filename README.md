@@ -6,6 +6,10 @@ It currently exposes:
 - `pin_out(pin)`
 - `pin_on(pin)`
 - `pin_off(pin)`
+- `pin_in(pin)`
+- `pin_in_pullup(pin)`
+- `pin_in_pulldown(pin)`
+- `pin_read(pin)`
 - `uart_write(text)`
 - `uart_write_line(text)`
 - `delay_us(us)`
@@ -28,7 +32,8 @@ You also need:
 Build:
 
 ```sh
-cd examples/blink # Or cd examples/uart-console
+cd examples/blink        # Or cd examples/uart-console
+# Or cd examples/button-input
 ./scripts/build.sh
 ```
 

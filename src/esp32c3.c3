@@ -11,12 +11,18 @@ const uint SYSTEM_BASE = 0x600C_0000;
 const uint GPIO_OUT_W1TS = GPIO_BASE + 0x008;
 const uint GPIO_OUT_W1TC = GPIO_BASE + 0x00C;
 const uint GPIO_ENABLE_W1TS = GPIO_BASE + 0x024;
+const uint GPIO_ENABLE_W1TC = GPIO_BASE + 0x028;
+const uint GPIO_IN_REG = GPIO_BASE + 0x03C;
 
 const uint GPIO_FUNC_OUT_SEL_BASE = GPIO_BASE + 0x554;
 const uint GPIO_FUNC_OUT_SEL_STRIDE = 4;
 
 const uint IO_MUX_GPIO_BASE = IO_MUX_BASE + 0x004;
 const uint IO_MUX_GPIO_STRIDE = 4;
+
+const uint IO_MUX_INPUT_VALUE = (1u << 12) | (1u << 9);
+const uint IO_MUX_INPUT_PULLUP_VALUE = (1u << 12) | (1u << 9) | (1u << 8);
+const uint IO_MUX_INPUT_PULLDOWN_VALUE = (1u << 12) | (1u << 9) | (1u << 7);
 
 const uint SYSTIMER_CONF = SYSTIMER_BASE + 0x0000;
 const uint SYSTIMER_UNIT0_OP = SYSTIMER_BASE + 0x0004;
@@ -51,16 +57,10 @@ const uint RTC_CNTL_SWD_WKEY_VALUE = 0x8F1D_312A;
 const usz ROM_UART_TX_ONE_CHAR_ADDR = 0x4000_0068;
 
 bool delay_timer_ready @local = false;
-bool boot_ready @local = false;
 
 alias RomTxOneChar = fn int(char);
 
 const RomTxOneChar ROM_UART_TX_ONE_CHAR = (RomTxOneChar)ROM_UART_TX_ONE_CHAR_ADDR;
-
-fn void boot_init() @private
-{
-	boot_ready = true;
-}
 
 macro void reg_write(uint addr, uint value)
 {
@@ -107,33 +107,33 @@ fn void __init() @naked @noreturn @export("__init") @section(".init")
 }
 
 <*
-	@require pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
+	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
 *>
-fn uint pin_mask(uint pin) @private
+fn uint pin_mask(Pin pin) @private
 {
-	return 1u << pin;
+	return 1u << (uint)pin;
 }
 
 <*
-	@require pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
+	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
 *>
-fn uint pin_io_mux_reg(uint pin) @private
+fn uint pin_io_mux_reg(Pin pin) @private
 {
-	return IO_MUX_GPIO_BASE + pin * IO_MUX_GPIO_STRIDE;
+	return IO_MUX_GPIO_BASE + (uint)pin * IO_MUX_GPIO_STRIDE;
 }
 
 <*
-	@require pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
+	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
 *>
-fn uint pin_out_sel_reg(uint pin) @private
+fn uint pin_out_sel_reg(Pin pin) @private
 {
-	return GPIO_FUNC_OUT_SEL_BASE + pin * GPIO_FUNC_OUT_SEL_STRIDE;
+	return GPIO_FUNC_OUT_SEL_BASE + (uint)pin * GPIO_FUNC_OUT_SEL_STRIDE;
 }
 
 <*
-	@require pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
+	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
 *>
-fn void pin_out_impl(uint pin) @private
+fn void pin_out_impl(Pin pin) @private
 {
 	feed_mwdt(TIMG0_BASE);
 	reg_write(pin_io_mux_reg(pin), IO_MUX_OUTPUT_VALUE);
@@ -142,21 +142,60 @@ fn void pin_out_impl(uint pin) @private
 }
 
 <*
-	@require pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
+	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
 *>
-fn void pin_on_impl(uint pin) @private
+fn void pin_on_impl(Pin pin) @private
 {
 	feed_mwdt(TIMG0_BASE);
 	reg_write(GPIO_OUT_W1TS, pin_mask(pin));
 }
 
 <*
-	@require pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
+	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
 *>
-fn void pin_off_impl(uint pin) @private
+fn void pin_off_impl(Pin pin) @private
 {
 	feed_mwdt(TIMG0_BASE);
 	reg_write(GPIO_OUT_W1TC, pin_mask(pin));
+}
+
+<*
+	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
+*>
+fn void pin_in_impl(Pin pin) @private
+{
+	feed_mwdt(TIMG0_BASE);
+	reg_write(pin_io_mux_reg(pin), IO_MUX_INPUT_VALUE);
+	reg_write(GPIO_ENABLE_W1TC, pin_mask(pin));
+}
+
+<*
+	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
+*>
+fn void pin_in_pullup_impl(Pin pin) @private
+{
+	feed_mwdt(TIMG0_BASE);
+	reg_write(pin_io_mux_reg(pin), IO_MUX_INPUT_PULLUP_VALUE);
+	reg_write(GPIO_ENABLE_W1TC, pin_mask(pin));
+}
+
+<*
+	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
+*>
+fn void pin_in_pulldown_impl(Pin pin) @private
+{
+	feed_mwdt(TIMG0_BASE);
+	reg_write(pin_io_mux_reg(pin), IO_MUX_INPUT_PULLDOWN_VALUE);
+	reg_write(GPIO_ENABLE_W1TC, pin_mask(pin));
+}
+
+<*
+	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
+*>
+fn bool pin_read_impl(Pin pin) @private
+{
+	feed_mwdt(TIMG0_BASE);
+	return (reg_read(GPIO_IN_REG) & pin_mask(pin)) != 0;
 }
 
 fn void uart_write_byte_impl(char byte) @private

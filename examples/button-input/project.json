@@ -1,0 +1,28 @@
+{
+  "langrev": "1",
+  "authors": [ "Johannes (jotrorox) Müller" ],
+  "version": "0.1.0",
+  "warnings": [ "no-unused" ],
+  "dependency-search-paths": [ "../../.." ],
+  "dependencies": [ "esp32c3" ],
+  "sources": [ "src/**" ],
+  "build-dir": "build",
+  "output": "build",
+  "opt": "O0",
+  "cpu": "rvimac",
+  "targets": {
+    "button-input": {
+      "type": "executable",
+      "name": "button-input",
+      "extension": ".elf",
+      "target": "elf-riscv32",
+      "linker": "builtin",
+      "riscv-abi": "int-only",
+      "memory-env": "none",
+      "reloc": "none",
+      "use-stdlib": false,
+      "link-libc": false,
+      "no-entry": true
+    }
+  }
+}

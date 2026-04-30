@@ -4,7 +4,6 @@ import esp32c3;
 
 fn void main() @export("start") @noreturn
 {
-    esp32c3::init();
     esp32c3::uart_printn("uart console example");
     esp32c3::uart_printn("printing once per second");
 

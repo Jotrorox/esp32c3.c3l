@@ -1,32 +1,43 @@
 module esp32c3;
 
-const uint PIN0 = 0;
-const uint PIN1 = 1;
-const uint PIN2 = 2;
-const uint PIN3 = 3;
-const uint PIN4 = 4;
-const uint PIN5 = 5;
-const uint PIN6 = 6;
-const uint PIN7 = 7;
-const uint PIN8 = 8;
-const uint PIN9 = 9;
-const uint PIN10 = 10;
-const uint PIN18 = 18;
-const uint PIN19 = 19;
-const uint PIN20 = 20;
-const uint PIN21 = 21;
+constdef Pin {
+PIN0 = 0,
+PIN1 = 1,
+PIN2 = 2,
+PIN3 = 3,
+PIN4 = 4,
+PIN5 = 5,
+PIN6 = 6,
+PIN7 = 7,
+PIN8 = 8,
+PIN9 = 9,
+PIN10 = 10,
+PIN18 = 18,
+PIN19 = 19,
+PIN20 = 20,
+PIN21 = 21,
+}
 
-macro void init()
-	=> boot_init();
-
-macro void pin_out(uint pin)
+macro void pin_out(Pin pin)
 	=> pin_out_impl(pin);
 
-macro void pin_on(uint pin)
+macro void pin_on(Pin pin)
 	=> pin_on_impl(pin);
 
-macro void pin_off(uint pin)
+macro void pin_off(Pin pin)
 	=> pin_off_impl(pin);
+
+macro void pin_in(Pin pin)
+	=> pin_in_impl(pin);
+
+macro void pin_in_pullup(Pin pin)
+	=> pin_in_pullup_impl(pin);
+
+macro void pin_in_pulldown(Pin pin)
+	=> pin_in_pulldown_impl(pin);
+
+macro bool pin_read(Pin pin)
+	=> pin_read_impl(pin);
 
 macro void uart_print(char* text)
 	=> uart_write_impl(text);
