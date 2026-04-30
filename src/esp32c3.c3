@@ -57,6 +57,11 @@ alias RomTxOneChar = fn int(char);
 
 const RomTxOneChar ROM_UART_TX_ONE_CHAR = (RomTxOneChar)ROM_UART_TX_ONE_CHAR_ADDR;
 
+fn void boot_init() @private
+{
+	boot_ready = true;
+}
+
 macro void reg_write(uint addr, uint value)
 {
 	*((uint*)addr) = value;
