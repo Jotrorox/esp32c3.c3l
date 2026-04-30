@@ -8,8 +8,9 @@
   "sources": [ "src/**" ],
   "build-dir": "build",
   "output": "build",
-  "opt": "O0",
+  "opt": "Oz",
   "cpu": "rvimac",
+  "cpu-flags": "+m",
   "targets": {
     "blink": {
       "type": "executable",

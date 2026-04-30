@@ -64,12 +64,12 @@ const RomTxOneChar ROM_UART_TX_ONE_CHAR = (RomTxOneChar)ROM_UART_TX_ONE_CHAR_ADD
 
 macro void reg_write(uint addr, uint value)
 {
-	*((uint*)addr) = value;
+	$$volatile_store((uint*)addr, value);
 }
 
 macro uint reg_read(uint addr)
 {
-	return *((uint*)addr);
+	return $$volatile_load((uint*)addr);
 }
 
 fn void disable_mwdt(uint timer_group_base) @private
@@ -279,11 +279,16 @@ fn void delay_ms_impl(uint ms) @private
 	delay_timer_ensure_init();
 	feed_mwdt(TIMG0_BASE);
 
-	ulong start = systimer_unit0_read_count();
-	ulong ms64 = (ulong)ms;
-	ulong target = (ms64 << 14) - (ms64 << 8) - (ms64 << 7);
-	while (systimer_unit0_read_count() - start < target)
+	while (ms > 0)
 	{
 		feed_mwdt(TIMG0_BASE);
+		uint chunk = ms > 100 ? 100 : ms;
+		ulong start = systimer_unit0_read_count();
+		uint target = chunk * 16000u;
+		while (systimer_unit0_read_count() - start < (ulong)target)
+		{
+			feed_mwdt(TIMG0_BASE);
+		}
+		ms -= chunk;
 	}
 }
