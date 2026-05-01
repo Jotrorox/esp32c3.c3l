@@ -1,0 +1,49 @@
+module esp32c3::hal::uart;
+
+macro void write_byte(char byte)
+	=> uart_write_byte_impl(byte);
+
+macro void flush()
+	=> uart_tx_flush_impl();
+
+macro void print(value)
+{
+	var $Type = $typeof(value);
+	$switch $Type:
+		$case char*:
+			uart_print_impl((char*)value);
+		$case int:
+		$case short:
+		$case ichar:
+			print_int_impl((int)value);
+		$case uint:
+		$case ushort:
+		$case char:
+			print_uint_impl((uint)value);
+		$case long:
+			print_int_impl((int)(long)value);
+		$case ulong:
+			print_uint_impl((uint)(ulong)value);
+		$case bool:
+			print_bool_impl((bool)value);
+		$default:
+			uart_write_byte_impl('?');
+	$endswitch
+}
+
+macro void printn(value)
+{
+	print(value);
+	uart_write_byte_impl('\r');
+	uart_write_byte_impl('\n');
+}
+
+macro void printf(char* fmt, args...)
+	=> printf_impl(fmt, args);
+
+macro void printfn(char* fmt, args...)
+{
+	printf_impl(fmt, args);
+	uart_write_byte_impl('\r');
+	uart_write_byte_impl('\n');
+}

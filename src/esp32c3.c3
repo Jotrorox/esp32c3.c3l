@@ -33,16 +33,8 @@ const uint TIMG_WDT_CONF_UPDATE_BIT = 13;
 const uint TIMG_WDT_WKEY_VALUE = 0x50D8_3AA1;
 const uint RTC_CNTL_SWD_AUTO_FEED_EN_BIT = 31;
 const uint RTC_CNTL_SWD_WKEY_VALUE = 0x8F1D_312A;
-const usz ROM_UART_TX_ONE_CHAR_ADDR = 0x4000_0068;
-const usz ROM_UART_TX_FLUSH_ADDR = 0x4000_0080;
 
 bool delay_timer_ready @local = false;
-
-alias RomTxOneChar = fn int(char);
-alias RomTxFlush = fn void();
-
-const RomTxOneChar ROM_UART_TX_ONE_CHAR = (RomTxOneChar)ROM_UART_TX_ONE_CHAR_ADDR;
-const RomTxFlush ROM_UART_TX_FLUSH = (RomTxFlush)ROM_UART_TX_FLUSH_ADDR;
 
 macro void reg_write(uint addr, uint value)
 {
@@ -86,34 +78,6 @@ fn void __init() @naked @noreturn @export("__init") @section(".init")
 	feed_mwdt(TIMG0_BASE);
 
 	start();
-}
-
-fn void uart_write_byte_impl(char byte) @private
-{
-	feed_mwdt(TIMG0_BASE);
-	ROM_UART_TX_ONE_CHAR(byte);
-}
-
-fn void uart_tx_flush_impl() @private
-{
-	ROM_UART_TX_FLUSH();
-}
-
-fn void uart_print_impl(char* text) @private
-{
-	while (*text)
-	{
-		uart_write_byte_impl(*text);
-		text++;
-	}
-	ROM_UART_TX_FLUSH();
-}
-
-fn void uart_printn_impl(char* text) @private
-{
-	uart_print_impl(text);
-	uart_write_byte_impl('\r');
-	uart_write_byte_impl('\n');
 }
 
 fn ulong systimer_unit0_read_count() @private

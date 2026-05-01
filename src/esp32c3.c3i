@@ -1,13 +1,21 @@
 module esp32c3;
 
-macro void print(char* text)
-	=> uart_print_impl(text);
+import esp32c3::hal::uart;
 
-macro void printn(char* text)
-	=> uart_printn_impl(text);
+macro void print(value)
+	=> uart::print(value);
+
+macro void printn(value)
+	=> uart::printn(value);
+
+macro void printf(char* fmt, args...)
+	=> uart::printf(fmt, args);
+
+macro void printfn(char* fmt, args...)
+	=> uart::printfn(fmt, args);
 
 macro void flush()
-	=> uart_tx_flush_impl();
+	=> uart::flush();
 
 macro void delay_us(uint us)
 	=> delay_us_impl(us);
