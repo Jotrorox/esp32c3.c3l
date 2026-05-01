@@ -1,28 +1,10 @@
 module esp32c3 @private;
 
-const uint GPIO_BASE = 0x6000_4000;
-const uint IO_MUX_BASE = 0x6000_9000;
 const uint SYSTIMER_BASE = 0x6002_3000;
 const uint TIMG0_BASE = 0x6001_F000;
 const uint TIMG1_BASE = 0x6002_0000;
 const uint RTC_CNTL_BASE = 0x6000_8000;
 const uint SYSTEM_BASE = 0x600C_0000;
-
-const uint GPIO_OUT_W1TS = GPIO_BASE + 0x008;
-const uint GPIO_OUT_W1TC = GPIO_BASE + 0x00C;
-const uint GPIO_ENABLE_W1TS = GPIO_BASE + 0x024;
-const uint GPIO_ENABLE_W1TC = GPIO_BASE + 0x028;
-const uint GPIO_IN_REG = GPIO_BASE + 0x03C;
-
-const uint GPIO_FUNC_OUT_SEL_BASE = GPIO_BASE + 0x554;
-const uint GPIO_FUNC_OUT_SEL_STRIDE = 4;
-
-const uint IO_MUX_GPIO_BASE = IO_MUX_BASE + 0x004;
-const uint IO_MUX_GPIO_STRIDE = 4;
-
-const uint IO_MUX_INPUT_VALUE = (1u << 12) | (1u << 9);
-const uint IO_MUX_INPUT_PULLUP_VALUE = (1u << 12) | (1u << 9) | (1u << 8);
-const uint IO_MUX_INPUT_PULLDOWN_VALUE = (1u << 12) | (1u << 9) | (1u << 7);
 
 const uint SYSTIMER_CONF = SYSTIMER_BASE + 0x0000;
 const uint SYSTIMER_UNIT0_OP = SYSTIMER_BASE + 0x0004;
@@ -38,9 +20,6 @@ const uint RTC_CNTL_SWD_WPROTECT = RTC_CNTL_BASE + 0x00B0;
 
 const uint SYSTEM_PERIP_CLK_EN0 = SYSTEM_BASE + 0x0010;
 const uint SYSTEM_PERIP_RST_EN0 = SYSTEM_BASE + 0x0018;
-
-const uint IO_MUX_OUTPUT_VALUE = (2u << 10) | (1u << 12);
-const uint GPIO_FUNC_OUTPUT_VALUE = 0x80u | (1u << 9);
 
 const uint SYSTIMER_CLK_EN_BIT = 31;
 const uint SYSTIMER_TIMER_UNIT0_WORK_EN_BIT = 30;
@@ -64,12 +43,12 @@ const RomTxOneChar ROM_UART_TX_ONE_CHAR = (RomTxOneChar)ROM_UART_TX_ONE_CHAR_ADD
 
 macro void reg_write(uint addr, uint value)
 {
-	$$volatile_store((uint*)addr, value);
+	@volatile_store(*(uint*)addr, value);
 }
 
 macro uint reg_read(uint addr)
 {
-	return $$volatile_load((uint*)addr);
+	return @volatile_load(*(uint*)addr);
 }
 
 fn void disable_mwdt(uint timer_group_base) @private
@@ -106,105 +85,13 @@ fn void __init() @naked @noreturn @export("__init") @section(".init")
 	start();
 }
 
-<*
-	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
-*>
-fn uint pin_mask(Pin pin) @private
-{
-	return 1u << (uint)pin;
-}
-
-<*
-	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
-*>
-fn uint pin_io_mux_reg(Pin pin) @private
-{
-	return IO_MUX_GPIO_BASE + (uint)pin * IO_MUX_GPIO_STRIDE;
-}
-
-<*
-	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
-*>
-fn uint pin_out_sel_reg(Pin pin) @private
-{
-	return GPIO_FUNC_OUT_SEL_BASE + (uint)pin * GPIO_FUNC_OUT_SEL_STRIDE;
-}
-
-<*
-	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
-*>
-fn void pin_out_impl(Pin pin) @private
-{
-	feed_mwdt(TIMG0_BASE);
-	reg_write(pin_io_mux_reg(pin), IO_MUX_OUTPUT_VALUE);
-	reg_write(pin_out_sel_reg(pin), GPIO_FUNC_OUTPUT_VALUE);
-	reg_write(GPIO_ENABLE_W1TS, pin_mask(pin));
-}
-
-<*
-	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
-*>
-fn void pin_on_impl(Pin pin) @private
-{
-	feed_mwdt(TIMG0_BASE);
-	reg_write(GPIO_OUT_W1TS, pin_mask(pin));
-}
-
-<*
-	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
-*>
-fn void pin_off_impl(Pin pin) @private
-{
-	feed_mwdt(TIMG0_BASE);
-	reg_write(GPIO_OUT_W1TC, pin_mask(pin));
-}
-
-<*
-	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
-*>
-fn void pin_in_impl(Pin pin) @private
-{
-	feed_mwdt(TIMG0_BASE);
-	reg_write(pin_io_mux_reg(pin), IO_MUX_INPUT_VALUE);
-	reg_write(GPIO_ENABLE_W1TC, pin_mask(pin));
-}
-
-<*
-	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
-*>
-fn void pin_in_pullup_impl(Pin pin) @private
-{
-	feed_mwdt(TIMG0_BASE);
-	reg_write(pin_io_mux_reg(pin), IO_MUX_INPUT_PULLUP_VALUE);
-	reg_write(GPIO_ENABLE_W1TC, pin_mask(pin));
-}
-
-<*
-	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
-*>
-fn void pin_in_pulldown_impl(Pin pin) @private
-{
-	feed_mwdt(TIMG0_BASE);
-	reg_write(pin_io_mux_reg(pin), IO_MUX_INPUT_PULLDOWN_VALUE);
-	reg_write(GPIO_ENABLE_W1TC, pin_mask(pin));
-}
-
-<*
-	@require (uint)pin <= 21 : "ESP32-C3 GPIO pins are 0 through 21"
-*>
-fn bool pin_read_impl(Pin pin) @private
-{
-	feed_mwdt(TIMG0_BASE);
-	return (reg_read(GPIO_IN_REG) & pin_mask(pin)) != 0;
-}
-
 fn void uart_write_byte_impl(char byte) @private
 {
 	feed_mwdt(TIMG0_BASE);
 	ROM_UART_TX_ONE_CHAR(byte);
 }
 
-fn void uart_write_impl(char* text) @private
+fn void uart_print_impl(char* text) @private
 {
 	while (*text)
 	{
@@ -213,9 +100,9 @@ fn void uart_write_impl(char* text) @private
 	}
 }
 
-fn void uart_write_line_impl(char* text) @private
+fn void uart_printn_impl(char* text) @private
 {
-	uart_write_impl(text);
+	uart_print_impl(text);
 	uart_write_byte_impl('\r');
 	uart_write_byte_impl('\n');
 }

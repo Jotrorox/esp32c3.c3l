@@ -2,18 +2,16 @@
 
 It currently exposes:
 
-- `init()`
-- `pin_out(pin)`
-- `pin_on(pin)`
-- `pin_off(pin)`
-- `pin_in(pin)`
-- `pin_in_pullup(pin)`
-- `pin_in_pulldown(pin)`
-- `pin_read(pin)`
-- `uart_write(text)`
-- `uart_write_line(text)`
+- `print(text)` – write text to UART
+- `println(text)` – write text + newline to UART
 - `delay_us(us)`
 - `delay_ms(ms)`
+
+### GPIO HAL (`esp32c3::hal::gpio`)
+
+- `gpio::mode(pin, mode)` – configure a pin (`mode`: `INPUT`, `INPUT_PULLUP`, `INPUT_PULLDOWN`, `OUTPUT`)
+- `gpio::write(pin, value)` – set pin high (`true`) or low (`false`)
+- `gpio::read(pin)` – read pin level (`bool`)
 
 Available pin constants:
 
@@ -21,7 +19,7 @@ Available pin constants:
 - `PIN18` through `PIN21`
 
 The UART helpers write through the ESP32-C3 ROM console transmit path, so output follows the active board console without duplicating characters.
-Call `init()` at the top of `main()` when booting from flash so the library can initialize the ROM boot watchdog handling before entering the main loop.
+The timer used by `delay_us`/`delay_ms` is initialized automatically on first use — no setup call is required.
 
 You also need: 
 1. `c3c`

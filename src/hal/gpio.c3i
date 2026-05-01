@@ -1,0 +1,35 @@
+module esp32c3::hal::gpio;
+
+constdef Pin {
+	PIN0 = 0,
+	PIN1 = 1,
+	PIN2 = 2,
+	PIN3 = 3,
+	PIN4 = 4,
+	PIN5 = 5,
+	PIN6 = 6,
+	PIN7 = 7,
+	PIN8 = 8,
+	PIN9 = 9,
+	PIN10 = 10,
+	PIN18 = 18,
+	PIN19 = 19,
+	PIN20 = 20,
+	PIN21 = 21,
+}
+
+enum PinMode {
+	INPUT,
+	INPUT_PULLUP,
+	INPUT_PULLDOWN,
+	OUTPUT,
+}
+
+macro void mode(Pin pin, PinMode mode)
+	=> mode_impl(pin, mode);
+
+macro void write(Pin pin, bool value)
+	=> write_impl(pin, value);
+
+macro bool read(Pin pin)
+	=> read_impl(pin);

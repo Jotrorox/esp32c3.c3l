@@ -1,16 +1,17 @@
 module blink;
 
+import esp32c3::hal::gpio;
 import esp32c3;
 
 fn void main() @export("start") 
 {
-    esp32c3::pin_out(PIN8);
+    gpio::mode(PIN8, OUTPUT);
 
     while (true)
     {
-        esp32c3::pin_on(PIN8);
+        gpio::write(PIN8, true);
         esp32c3::delay_ms(250);
-        esp32c3::pin_off(PIN8);
+        gpio::write(PIN8, false);
         esp32c3::delay_ms(250);
     }
 }
