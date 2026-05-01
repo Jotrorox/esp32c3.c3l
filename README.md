@@ -3,7 +3,8 @@
 It currently exposes:
 
 - `print(text)` – write text to UART
-- `println(text)` – write text + newline to UART
+- `printn(text)` – write text + newline to UART
+- `flush()` – flush UART output (ensures buffered data is sent immediately)
 - `delay_us(us)`
 - `delay_ms(ms)`
 
@@ -19,6 +20,7 @@ Available pin constants:
 - `PIN18` through `PIN21`
 
 The UART helpers write through the ESP32-C3 ROM console transmit path, so output follows the active board console without duplicating characters.
+`print` automatically flushes after each call so text appears immediately instead of being held in a packet buffer.
 The timer used by `delay_us`/`delay_ms` is initialized automatically on first use — no setup call is required.
 
 You also need: 

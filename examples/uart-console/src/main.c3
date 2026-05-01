@@ -9,7 +9,7 @@ fn void main() @export("start") @noreturn
 
     while (true)
     {
-        esp32c3::print("hello world");
+        esp32c3::printn("hello world");
         esp32c3::delay_ms(1000);
     }
 }
