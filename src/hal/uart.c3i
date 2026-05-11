@@ -8,7 +8,7 @@ macro void flush()
 
 macro void print(value)
 {
-	var $Type = $typeof(value);
+	var $Type = $Typeof(value);
 	$switch $Type:
 		$case char*:
 			uart_print_impl((char*)value);

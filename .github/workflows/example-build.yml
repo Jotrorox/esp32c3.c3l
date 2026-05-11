@@ -1,0 +1,37 @@
+name: Build ESP32-C3 examples
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  build-c3-examples:
+    name: Build ${{ matrix.example }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - examples/blink
+          - examples/button-input
+          - examples/uart-console
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup C3
+        uses: jotrorox/setup-c3@v1
+
+      - name: Install esptool
+        run: python3 -m pip install --user esptool
+
+      - name: Build example
+        run: ./${{ matrix.example }}/scripts/build.sh
