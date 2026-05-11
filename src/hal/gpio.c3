@@ -1,4 +1,4 @@
-module esp32c3::hal::gpio @private;
+module esp32::hal::gpio @private;
 
 const uint GPIO_BASE = 0x6000_4000;
 const uint IO_MUX_BASE = 0x6000_9000;

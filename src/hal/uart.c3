@@ -1,4 +1,4 @@
-module esp32c3::hal::uart @private;
+module esp32::hal::uart @private;
 
 const uint TIMG0_BASE = 0x6001_F000;
 const uint TIMG_WDTFEED_OFFSET = 0x0060;

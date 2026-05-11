@@ -1,7 +1,7 @@
 module button_input;
 
-import esp32c3::hal::gpio;
-import esp32c3;
+import esp32::hal::gpio;
+import esp32;
 
 fn void main() @export("start")
 {
@@ -11,6 +11,6 @@ fn void main() @export("start")
     while (true)
     {
         gpio::write(PIN8, !gpio::read(PIN9));
-        esp32c3::delay_ms(10);
+        esp32::delay_ms(10);
     }
 }

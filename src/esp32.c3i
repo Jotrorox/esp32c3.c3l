@@ -1,6 +1,6 @@
-module esp32c3;
+module esp32;
 
-import esp32c3::hal::uart;
+import esp32::hal::uart;
 
 macro void print(value)
 	=> uart::print(value);

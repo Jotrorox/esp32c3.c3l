@@ -1,4 +1,4 @@
-module esp32c3::hal::gpio;
+module esp32::hal::gpio;
 
 constdef Pin {
 	PIN0 = 0,

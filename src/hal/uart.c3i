@@ -1,4 +1,4 @@
-module esp32c3::hal::uart;
+module esp32::hal::uart;
 
 macro void write_byte(char byte)
 	=> uart_write_byte_impl(byte);

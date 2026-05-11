@@ -1,4 +1,4 @@
-module esp32c3 @private;
+module esp32 @private;
 
 const uint SYSTIMER_BASE = 0x6002_3000;
 const uint TIMG0_BASE = 0x6001_F000;

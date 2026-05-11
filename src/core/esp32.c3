@@ -1,4 +1,4 @@
-module std::core::esp32c3;
+module std::core::esp32;
 
 <*
  @param #x : "The variable or dereferenced pointer to load."

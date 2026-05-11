@@ -1,4 +1,4 @@
-name: Build ESP32-C3 Nightly Release
+name: Build Nightly Release
 
 on:
   push:
@@ -13,8 +13,8 @@ permissions:
 
 env:
   RELEASE_TAG: nightly
-  RELEASE_NAME: esp32c3.c3l - Nightly Release
-  OUTPUT_NAME: esp32c3.c3l
+  RELEASE_NAME: esp32.c3l - Nightly Release
+  OUTPUT_NAME: esp32.c3l
 
 jobs:
   build-nightly:
